@@ -16,8 +16,8 @@ def openai_summarize(question):
         response = openai.Completion.create(
           model="gpt-4",  # Zorg dat je het model naar GPT-4 update
           prompt=f"Geef een samenvatting in zoekwoorden van deze juridische vraag: '{question}'",
-          temperature=0.5,
-          max_tokens=60,
+          temperature=0.1,
+          max_tokens=200,
           n=1,
           stop=None,
           language="nl"
