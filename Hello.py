@@ -1,39 +1,47 @@
-import streamlit as st
+from dotenv import load_dotenv
+import os
+import openai
 import requests
 
-def zoek_uitspraken(onderwerp, zaaknummer, ecli, sorteer):
-    base_url = "http://data.rechtspraak.nl/uitspraken/zoeken"
-    params = {}
-    
-    if onderwerp:
-        params['q'] = onderwerp
-    
-    if zaaknummer:
-        params['zaaknummer'] = zaaknummer
+load_dotenv()  # laadt de variabelen uit .env
 
-    if ecli:
-        params['ecli'] = ecli
+# Omgevingsvariabelen ophalen
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-    if sorteer:
-        params['sort'] = 'date asc'  # Aannemende dat 'date desc' de API zal instrueren om aflopend te sorteren op datum
+# Configureer OpenAI met de API sleutel
+openai.api_key = OPENAI_API_KEY
 
-    response = requests.get(base_url, params=params)
-    if response.status_code == 200:
-        try:
-            return response.json()
-        except ValueError:
-            return response.text
+def openai_summarize(question):
+    try:
+        response = openai.Completion.create(
+          model="gpt-4",  # Zorg dat je het model naar GPT-4 update
+          prompt=f"Geef een samenvatting in zoekwoorden van deze juridische vraag: '{question}'",
+          temperature=0.5,
+          max_tokens=60,
+          n=1,
+          stop=None,
+          language="nl"
+        )
+        return response.choices[0].text.strip()
+    except Exception as e:
+        print(f"Fout bij het aanroepen van OpenAI: {e}")
+        return ""
+
+def search_jurisprudence(keywords):
+    # Dit is een placeholder. Implementeer je eigen logica om te zoeken in de rechtspraak database.
+    print(f"Zoekresultaten voor: {keywords}")
+    # Stel je voor dat dit de zoekresultaten retourneert.
+    return "10 meest relevante zoekresultaten"
+
+def main():
+    user_question = input("Voer je juridische vraag in: ")
+    keywords = openai_summarize(user_question)
+    if keywords:
+        print(f"Zoekwoorden gegenereerd door GPT-4: {keywords}")
+        search_results = search_jurisprudence(keywords)
+        print(search_results)
     else:
-        return "Geen resultaten gevonden of een fout opgetreden."
+        print("Kon geen zoekwoorden genereren. Probeer het opnieuw.")
 
-# Streamlit UI componenten
-st.title('Zoeken naar rechterlijke uitspraken')
-onderwerp = st.text_input("Onderwerp")
-zaaknummer = st.text_input("Zaaknummer")
-ecli = st.text_input("ECLI")
-sorteer = st.checkbox("Sorteer op nieuwste uitspraken eerst", value=True)
-
-if st.button('Zoek'):
-    with st.spinner('Zoeken...'):
-        resultaten = zoek_uitspraken(onderwerp, zaaknummer, ecli, sorteer)
-        st.write(resultaten)  # Aanpassing nodig voor nette presentatie van resultaten
+if __name__ == "__main__":
+    main()

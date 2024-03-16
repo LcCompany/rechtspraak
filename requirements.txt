@@ -3,3 +3,7 @@ numpy
 pandas
 pydeck
 streamlit
+dotenv
+os
+openai
+requests
