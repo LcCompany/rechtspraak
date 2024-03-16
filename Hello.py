@@ -15,7 +15,7 @@ def zoek_uitspraken(onderwerp, zaaknummer, ecli, sorteer):
         params['ecli'] = ecli
 
     if sorteer:
-        params['sort'] = 'date desc'  # Aannemende dat 'date desc' de API zal instrueren om aflopend te sorteren op datum
+        params['sort'] = 'date asc'  # Aannemende dat 'date desc' de API zal instrueren om aflopend te sorteren op datum
 
     response = requests.get(base_url, params=params)
     if response.status_code == 200:
